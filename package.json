@@ -3,13 +3,24 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
+  "types": "dist/index.d.ts",
   "exports": [
     "./src/index.ts",
     "./src/performatic_pagination.ts",
     "./src/page.model.ts"
   ],
-  "scripts": {},
+  "scripts": {
+    "prepublish": "tsc",
+    "build": "tsc"
+
+  },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "Rafael S Pereira",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "@types/node": "^18.13.0"
+  }
 }
