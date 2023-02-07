@@ -163,8 +163,8 @@ export class PageModel<T extends object> {
     callbackfn: (value: T, index: number) => Promise<S>
   ): Promise<PageModel<S>> {
     const mappedValues = [] as S[keyof S][][];
-    for (let index = 0; index < this.length; index += 1) {
-      const item = this[index];
+    for (let index: number = 0; index < this.length; index += 1) {
+      const item = this.at(index);
       const value = await callbackfn(item, index);
       mappedValues.push(value as S[keyof S][]);
     }
