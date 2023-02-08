@@ -18,7 +18,6 @@
   "author": "Rafael S Pereira",
   "license": "ISC",
   "dependencies": {
-    "performatic_pagination": "^1.0.1",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
