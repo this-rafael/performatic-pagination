@@ -11,16 +11,18 @@
   ],
   "scripts": {
     "prepublish": "tsc",
-    "build": "tsc"
-
+    "build": "tsc",
+    "test": "tsx ./test/page.test.ts"
   },
   "keywords": [],
   "author": "Rafael S Pereira",
   "license": "ISC",
   "dependencies": {
+    "performatic_pagination": "^1.0.1",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
-    "@types/node": "^18.13.0"
+    "@types/node": "^18.13.0",
+    "tsx": "^3.12.3"
   }
 }

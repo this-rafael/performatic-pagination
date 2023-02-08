@@ -237,6 +237,8 @@ export class PageModel<T extends object> {
 
       const current: T = data[currentIndex];
 
+      if(!current) break;
+
       // add current to the page
       const currentValues = PageModel.getValuesFromOneObject<T>(keys, current);
       if (currentValues.length > 0) {
@@ -312,7 +314,9 @@ export class PageModel<T extends object> {
     for (let currentIndex = 1; currentIndex < length; currentIndex += 2) {
       const nextIndex = currentIndex + 1;
 
-      const current: T = builderData(data[currentIndex]);
+      const originalData = data[currentIndex];
+      if (!originalData) break;
+      const current: T = builderData(originalData);
 
       // add current to the page
       const currentValues = PageModel.getValuesFromOneObject<T>(keys, current);
@@ -397,7 +401,10 @@ export class PageModel<T extends object> {
       // iterate with current and next index
       const nextIndex = currentIndex + 1;
 
-      const current: T = await asyncBuilderData(data[currentIndex]);
+      const originalData = data[currentIndex];
+      if (!originalData) break;
+
+      const current: T = await asyncBuilderData(originalData);
 
       // add current to the page
       const currentValues = PageModel.getValuesFromOneObject<T>(keys, current);
