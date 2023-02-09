@@ -1,12 +1,3 @@
-/* eslint-disable complexity */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable unicorn/prefer-at */
-/* eslint-disable unused-imports/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-/* eslint-disable unicorn/prevent-abbreviations */
-
 /**
  * ValuesType<T> is the type of the values of an object T
  */
@@ -121,6 +112,16 @@ export class PageModel<T extends object> {
       index = this.data.values.length + index;
     }
     const item = {} as T;
+
+    if (!this.data.values[index]) {
+      throw new Error(`
+      You are trying to access an inexistent index
+      > index: ${index}
+      > length: ${this.data.values.length}
+      > keys: ${this.data.keys}
+      > values: ${JSON.stringify(this.data.values)}}
+    `);
+    }
     for (const [i, key] of this.data.keys.entries()) {
       item[key] = this.data.values[index][i];
     }
@@ -138,14 +139,19 @@ export class PageModel<T extends object> {
   public map<S extends object = any>(
     callbackfn: (value: T, index: number) => S
   ): PageModel<S> {
-    const mappedValues: S[keyof S][][] = this.data.values.map(
-      (itemValues, index) => {
-        const item = this.at(index);
-        return Object.values(callbackfn(item, index)) as S[keyof S][];
-      }
-    );
+    const mappedValues = [] as S[keyof S][][];
+    const firstItem = this.at(0);
+    const firstMappedItem: S = callbackfn(firstItem, 0);
+    const firstValues = Object.values(firstMappedItem);
+    mappedValues.push(firstValues);
+    const keys = Object.keys(firstMappedItem) as (keyof S)[];
 
-    const keys = Object.keys(callbackfn(this.at(0), 0)) as (keyof S)[];
+    for (let index: number = 1; index < this.length; index += 1) {
+      const item = this.at(index);
+      const mappedItem: S = callbackfn(item, index);
+      const values = Object.values(mappedItem);
+      mappedValues.push(values);
+    }
 
     return new PageModel<S>({ keys, values: mappedValues }, this.length);
   }
@@ -163,12 +169,19 @@ export class PageModel<T extends object> {
     callbackfn: (value: T, index: number) => Promise<S>
   ): Promise<PageModel<S>> {
     const mappedValues = [] as S[keyof S][][];
-    for (let index: number = 0; index < this.length; index += 1) {
+    const firstItem = this.at(0);
+    const firstMappedItem: S = await callbackfn(firstItem, 0);
+    const firstValues = Object.values(firstMappedItem);
+    mappedValues.push(firstValues);
+    const keys = Object.keys(firstMappedItem) as (keyof S)[];
+
+    for (let index: number = 1; index < this.length; index += 1) {
       const item = this.at(index);
-      const value = await callbackfn(item, index);
-      mappedValues.push(value as S[keyof S][]);
+      const mappedItem: S = await callbackfn(item, index);
+      const values = Object.values(mappedItem);
+      mappedValues.push(values);
     }
-    const keys = Object.keys(callbackfn(this.at(0), 0)) as (keyof S)[];
+
     return new PageModel<S>({ keys, values: mappedValues }, this.length);
   }
 
@@ -237,7 +250,7 @@ export class PageModel<T extends object> {
 
       const current: T = data[currentIndex];
 
-      if(!current) break;
+      if (!current) break;
 
       // add current to the page
       const currentValues = PageModel.getValuesFromOneObject<T>(keys, current);

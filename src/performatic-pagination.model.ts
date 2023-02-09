@@ -126,9 +126,11 @@ export class PerformaticPaginationModel<T extends object> {
       keys?: (keyof T)[];
     }
   ): Promise<PerformaticPaginationModel<T>> {
+    const takeValue = take ?? total;
+
     return new PerformaticPaginationModel(
       await PageModel.fromAsyncBuilderData(asyncBuilderData, data, {
-        length: take,
+        length: takeValue,
         keys: optional?.keys,
       }),
       total,
