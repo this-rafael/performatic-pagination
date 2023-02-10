@@ -203,20 +203,20 @@ const merchants = [
 ];
 
 const main = async () => {
-  const page = await PerformaticPaginationModel.fromAsyncBuilder(
-    16,
-    merchants,
-    async (response) => {
-      return {
-        current: new Date().getTime(),
-        ...response,
-      };
-    },
-    15,
-    0
-  );
+  const total = merchants.length;
 
-  console.log(page.asList);
+  const page = await PerformaticPaginationModel.fromAsyncFactory({
+    total,
+    skip: 15,
+    take: 15,
+    data: merchants,
+    asyncFactory: async (element) => {
+      const index = new Date().getTime();
+      return { ...element, index };
+    },
+  });
+
+  console.log(page.asList.length);
 };
 
 main();

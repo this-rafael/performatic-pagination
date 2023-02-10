@@ -82,8 +82,8 @@ export class PerformaticPaginationModel<T extends object> {
 
     const skipPlusTake = skipValue + takeValue;
 
-    const pageLength =
-      skipPlusTake > total ? skipPlusTake - total : skipPlusTake;
+    const pageLength = skipPlusTake > total ? skipPlusTake - total : take;
+
 
     return new PerformaticPaginationModel(
       PageModel.fromSyncFactory(builderData, data, {
@@ -121,11 +121,11 @@ export class PerformaticPaginationModel<T extends object> {
 
     const skipPlusTake = skipValue + takeValue;
 
-    const realTake = skipPlusTake > total ? skipPlusTake - total : skipPlusTake;
+    const pageLength = skipPlusTake > total ? skipPlusTake - total : take;
 
     return new PerformaticPaginationModel(
       await PageModel.fromAsyncFactory(asyncFactory, data, {
-        length: realTake,
+        length: pageLength,
         keys: optional?.keys,
       }),
       total,
@@ -158,12 +158,12 @@ export class PerformaticPaginationModel<T extends object> {
 
     const skipPlusTake = skipValue + takeValue;
 
-    const realTake = skipPlusTake > total ? skipPlusTake - total : skipPlusTake;
+    const pageLength = skipPlusTake > total ? skipPlusTake - total : take;
 
     return new PerformaticPaginationModel(
       PageModel.fromEntriesData<T>(entries, {
         keys: optional?.keys,
-        length: realTake,
+        length: pageLength,
       }),
       total,
       takeValue,
