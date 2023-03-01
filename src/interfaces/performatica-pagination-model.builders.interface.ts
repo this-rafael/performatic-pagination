@@ -1,4 +1,4 @@
-import { KeysOfT, PageProperties } from "../types/base-types";
+import { KeysOf, PageProperties } from "../types/base-types";
 
 /**
  * This interface is used to build a PerformaticPaginationModel in factory called fromSyncFactory {@see PerformaticPaginationModel}
@@ -56,12 +56,12 @@ export interface PerformaticPaginationModelFromSyncFactoryBuilder<
    * keys will be used to build the page object keys can be passed, to decrease the number of interactions made, improving performance
    *
    * @type {{
-   *     keys?: KeysOfT<T>;
+   *     keys?: KeysOf<T>;
    *   }}
    * @memberof PerformaticPaginationModelFromSyncFactoryBuilder
    */
   optional?: {
-    keys?: KeysOfT<T>;
+    keys?: KeysOf<T>;
   };
 }
 
@@ -120,12 +120,12 @@ export interface PerformaticPaginationModelAsyncFactoryBuilder<
    * keys will be used to build the page object keys can be passed, to decrease the number of interactions made, improving performance
    *
    * @type {{
-   *     keys?: KeysOfT<T>;
+   *     keys?: KeysOf<T>;
    *   }}
    * @memberof PerformaticPaginationModelFromSyncFactoryBuilder
    */
   optional?: {
-    keys?: KeysOfT<T>;
+    keys?: KeysOf<T>;
   };
 }
 
@@ -167,12 +167,12 @@ export interface PerformanticPaginationModelFromEntriesBuilder<
    * keys will be used to build the page object keys can be passed, to decrease the number of interactions made, improving performance
    *
    * @type {{
-   *     keys?: KeysOfT<T>;
+   *     keys?: KeysOf<T>;
    *   }}
    * @memberof PerformaticPaginationModelFromSyncFactoryBuilder
    */
   optional?: {
-    keys?: KeysOfT<T>;
+    keys?: KeysOf<T>;
   };
 }
 

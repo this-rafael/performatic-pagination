@@ -1,6 +1,6 @@
 export {
   BuildOptionalData,
-  KeysOfT,
+  KeysOf,
   OneItemValueType,
   PageProperties,
   ValuesType,

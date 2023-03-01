@@ -1,5 +1,5 @@
 import { PageModel } from "../core/page.model";
-import { KeysOfT, OneItemValueType, ValuesType } from "../types/base-types";
+import { KeysOf, OneItemValueType, ValuesType } from "../types/base-types";
 
 export class AtHelper<T extends object> {
   constructor(private readonly page: PageModel<T>) {}
@@ -118,7 +118,7 @@ export class MapHelper<T extends object, S extends object = any> {
 export class BuildOneItemPageModelHelper<T extends object, S> {
   constructor(
     private readonly data: S[],
-    private readonly optional?: { keys?: KeysOfT<T>; length?: number }
+    private readonly optional?: { keys?: KeysOf<T>; length?: number }
   ) {}
 
   public async getFirstItemAsync(
@@ -165,13 +165,13 @@ export class GetPageParametersHelper<T extends object> {
   constructor(
     private readonly object: T,
     private readonly data: { length: number },
-    private readonly optional?: { keys?: KeysOfT<T>; length?: number }
+    private readonly optional?: { keys?: KeysOf<T>; length?: number }
   ) {}
 
   get parameters(): {
     length: number;
     values: ValuesType<T>;
-    keys: KeysOfT<T>;
+    keys: KeysOf<T>;
   } {
     const length = this.optional?.length ?? this.data.length;
     const values: ValuesType<T> = [];
@@ -182,11 +182,11 @@ export class GetPageParametersHelper<T extends object> {
     };
   }
 
-  get keys(): KeysOfT<T> {
-    return this.optional?.keys ?? (Object.keys(this.object) as KeysOfT<T>);
+  get keys(): KeysOf<T> {
+    return this.optional?.keys ?? (Object.keys(this.object) as KeysOf<T>);
   }
 
-  getValuesFromItem(keys: KeysOfT<T>): OneItemValueType<T> {
+  getValuesFromItem(keys: KeysOf<T>): OneItemValueType<T> {
     if (!this.object || keys.length === 0) return [];
 
     const values: OneItemValueType<T> = [];

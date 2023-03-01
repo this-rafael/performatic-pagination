@@ -1,13 +1,15 @@
+import { AsyncFactoryPageModelBuilder } from "../helpers/async-factory-page.model";
 import {
   AtHelper,
   BuildOneItemPageModelHelper,
   GetPageParametersHelper,
   MapHelper,
 } from "../helpers/page-model.helpers";
+import { SyncFactoryPageModelBuilder } from "../helpers/sync-factory-page.model";
 import {
   PageProperties,
   ValuesType,
-  KeysOfT,
+  KeysOf,
   BuildOptionalData,
 } from "../types/base-types";
 
@@ -46,7 +48,7 @@ export class PageModel<T extends object> {
    * @return {*}  {KeysOfT<T>}
    * @memberof PageModel
    */
-  public getKeys(): KeysOfT<T> {
+  public getKeys(): KeysOf<T> {
     return this.data.keys;
   }
 
@@ -202,7 +204,7 @@ export class PageModel<T extends object> {
    * @param {(data: S) => T} builderData - Builder function to build the data of the page
    * @param {S[]} data - Data to build the page
    * @param {{
-   *       keys?: KeysOfT<T>
+   *       keys?: KeysOf<T>
    *       length?: number
    *     }} [optional] - Optional data to build the page
    * @return {*}  {PageModel<T>} - Page model
@@ -212,80 +214,11 @@ export class PageModel<T extends object> {
     builderData: (data: S) => T,
     data: S[],
     optional?: {
-      keys?: KeysOfT<T>;
+      keys?: KeysOf<T>;
       length?: number;
     }
   ): PageModel<T> {
-    if (data[0] === undefined) {
-      return PageModel.NIL_PAGE<T>();
-    }
-
-    const haveOnlyOneElement = data[0] !== undefined && data[1] === undefined;
-
-    if (haveOnlyOneElement) {
-      return new BuildOneItemPageModelHelper<T, S>(
-        data,
-        optional
-      ).getFirstItemSync(builderData);
-    }
-
-    let trueLength = 0;
-    // but if the data are more than one, we need to build the page
-    // iterate over the data to build the page
-    const firstObject: T = builderData(data[0]);
-
-    const getFirstValuesParametersHelper = new GetPageParametersHelper<T>(
-      firstObject,
-      data,
-      optional
-    );
-
-    const { keys, length, values } = getFirstValuesParametersHelper.parameters;
-
-    const firstValues = getFirstValuesParametersHelper.getValuesFromItem(keys);
-
-    if (firstValues.length > 0) {
-      values.push(firstValues);
-      trueLength += 1;
-    }
-
-    for (let currentIndex = 1; currentIndex < length; currentIndex += 2) {
-      const nextIndex = currentIndex + 1;
-
-      const originalData = data[currentIndex];
-      if (!originalData) break;
-      const current: T = builderData(originalData);
-
-      // add current to the page
-      const currentValues = new GetPageParametersHelper<T>(
-        current,
-        data,
-        optional
-      ).getValuesFromItem(keys);
-
-      if (currentValues.length > 0) {
-        values.push(currentValues);
-        trueLength += 1;
-      }
-
-      if (nextIndex < length) {
-        const next: T = builderData(data[nextIndex]);
-
-        // add next to the page
-        const nextValues = new GetPageParametersHelper<T>(
-          next,
-          data,
-          optional
-        ).getValuesFromItem(keys);
-
-        if (nextValues.length > 0) {
-          values.push(nextValues);
-          trueLength += 1;
-        }
-      }
-    }
-
-    return new PageModel({ keys, values }, trueLength);
+    return new SyncFactoryPageModelBuilder(builderData, data, optional).build();
   }
 
   /**
@@ -301,7 +234,7 @@ export class PageModel<T extends object> {
    * @param {{
    *       keepSort?: boolean
    *       length?: number
-   *       keys?: KeysOfT<T>
+   *       keys?: KeysOf<T>
    *     }} [optional] - Optional data to build the page
    * @return {*}  {Promise<PageModel<T>>} - Page model
    * @memberof PageModel
@@ -313,85 +246,17 @@ export class PageModel<T extends object> {
     optional?: {
       keepSort?: boolean;
       length?: number;
-      keys?: KeysOfT<T>;
+      keys?: KeysOf<T>;
     }
   ): Promise<PageModel<T>> {
-    if (data[0] === undefined) {
-      return PageModel.NIL_PAGE<T>();
-    }
-
-    const haveOnlyOneElement = data[0] !== undefined && data[1] === undefined;
-    // check if the data are only one and if it is the case, return a page with only one data
-    if (haveOnlyOneElement) {
-      return new BuildOneItemPageModelHelper<T, S>(
-        data,
-        optional
-      ).getFirstItemAsync(asyncBuilderData);
-    }
-
-    let trueLength = 0;
-    // but if the data are more than one, we need to build the page
-    // iterate over the data to build the page
-    const firstObject: T = await asyncBuilderData(data[0]);
-
-    const firstItemValuesHelper = new GetPageParametersHelper<T>(
-      firstObject,
+    return new AsyncFactoryPageModelBuilder(
+      asyncBuilderData,
       data,
       optional
-    );
-    const { keys, length, values } = firstItemValuesHelper.parameters;
-
-    const firstValues = firstItemValuesHelper.getValuesFromItem(keys);
-
-    if (firstValues.length > 0) {
-      values.push(firstValues);
-      trueLength += 1;
-    }
-
-    // iterate over the data to build the page
-    // interate using next index
-    for (let currentIndex = 1; currentIndex < length; currentIndex += 2) {
-      // iterate with current and next index
-      const nextIndex = currentIndex + 1;
-
-      const originalData = data[currentIndex];
-      if (!originalData) break;
-
-      const current: T = await asyncBuilderData(originalData);
-
-      // add current to the page
-      const currentValues = new GetPageParametersHelper<T>(
-        current,
-        data,
-        optional
-      ).getValuesFromItem(keys);
-
-      if (currentValues.length > 0) {
-        values.push(currentValues);
-        trueLength += 1;
-      }
-
-      if (nextIndex < length) {
-        const next: T = await asyncBuilderData(data[nextIndex]);
-
-        // add next to the page
-        const nextValues = new GetPageParametersHelper<T>(
-          next,
-          data,
-          optional
-        ).getValuesFromItem(keys);
-
-        if (nextValues.length > 0) {
-          values.push(nextValues);
-          trueLength += 1;
-        }
-      }
-    }
-
-    return new PageModel({ keys, values }, trueLength);
+    ).build();
   }
 
-  private static NIL_PAGE<T extends object>(): PageModel<T> {
+  public static NIL_PAGE<T extends object>(): PageModel<T> {
     return new PageModel(
       {
         keys: [],
