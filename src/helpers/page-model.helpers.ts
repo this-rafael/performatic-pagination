@@ -12,14 +12,19 @@ export class AtHelper<T extends object> {
     const item = {} as T;
 
     if (!this.page.data.values[index]) {
+      const values = this.page.data.values;
+      const valuelength = values.length;
       console.warn(
         "WARNING",
         new Error(`
         You are trying to access an inexistent index
         > index: ${index}
-        > length: ${this.page.data.values.length}
+        > length: ${valuelength}
         > keys: ${this.page.data.keys}
-        > values: ${JSON.stringify(this.page.data.values)}}
+        > values: ${JSON.stringify(values)}}
+        The last available index is: ${valuelength - 1}
+        And item is ${values[valuelength - 1]}
+
       `)
       );
 
@@ -44,6 +49,10 @@ export class MapHelper<T extends object, S extends object = any> {
    * @memberof PageModel
    */
   public map(callbackfn: (value: T, index: number) => S): PageModel<S> {
+    if (this.page.isEmpty) {
+      return new PageModel<S>({ keys: [], values: [] }, 0);
+    }
+
     const { firstItem, mappedValues } = this.getFirstItemAndMappedValues<S>();
     const firstMappedItem: S = callbackfn(firstItem, 0);
     const keys = this.getFirstObjectKeysAndPushFirstItemToMappedValues<S>(

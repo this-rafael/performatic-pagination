@@ -1,4 +1,5 @@
 import { AsyncFactoryPageModelBuilder } from "../helpers/async-factory-page.model";
+import { FromEntitiesFactoryPageHelper } from "../helpers/from-entitites-factory-page.helper";
 import {
   AtHelper,
   BuildOneItemPageModelHelper,
@@ -21,6 +22,10 @@ export class PageModel<T extends object> {
    * @memberof PageModel
    */
   constructor(readonly data: PageProperties<T>, readonly length: number) {}
+
+  public get isEmpty(): boolean {
+    return this.length === 0;
+  }
 
   /**
    * get the data of the page as an object
@@ -121,78 +126,7 @@ export class PageModel<T extends object> {
     data: T[],
     optional?: BuildOptionalData<T>
   ): PageModel<T> {
-    if (data[0] === undefined) {
-      return PageModel.NIL_PAGE<T>();
-    }
-
-    const haveOnlyOneElement = data[0] !== undefined && data[1] === undefined;
-
-    if (haveOnlyOneElement) {
-      return new BuildOneItemPageModelHelper<T, T>(
-        data,
-        optional
-      ).getFirstItemSync((e) => e);
-    }
-
-    let trueLength = 0;
-    // but if the data are more than one, we need to build the page
-    // iterate over the data to build the page
-    const firstObject: T = data[0];
-
-    const { keys, length, values } = new GetPageParametersHelper<T>(
-      firstObject,
-      data,
-      optional
-    ).parameters;
-
-    const firstValues = new GetPageParametersHelper<T>(
-      firstObject,
-      data,
-      optional
-    ).getValuesFromItem(keys);
-
-    if (firstValues.length > 0) {
-      values.push(firstValues);
-      trueLength += 1;
-    }
-
-    for (let currentIndex = 1; currentIndex < length; currentIndex += 2) {
-      const nextIndex = currentIndex + 1;
-
-      const current: T = data[currentIndex];
-
-      if (!current) break;
-
-      // add current to the page
-      const currentValues = new GetPageParametersHelper<T>(
-        current,
-        data,
-        optional
-      ).getValuesFromItem(keys);
-
-      if (currentValues.length > 0) {
-        values.push(currentValues);
-        trueLength += 1;
-      }
-
-      if (nextIndex < length) {
-        const next: T = data[nextIndex];
-
-        // add next to the page
-        const nextValues = new GetPageParametersHelper<T>(
-          next,
-          data,
-          optional
-        ).getValuesFromItem(keys);
-
-        if (nextValues.length > 0) {
-          values.push(nextValues);
-          trueLength += 1;
-        }
-      }
-    }
-
-    return new PageModel({ keys, values }, trueLength);
+    return new FromEntitiesFactoryPageHelper(data, optional).page;
   }
 
   /**
@@ -218,7 +152,7 @@ export class PageModel<T extends object> {
       length?: number;
     }
   ): PageModel<T> {
-    return new SyncFactoryPageModelBuilder(builderData, data, optional).build();
+    return new SyncFactoryPageModelBuilder(builderData, data, optional).page;
   }
 
   /**
