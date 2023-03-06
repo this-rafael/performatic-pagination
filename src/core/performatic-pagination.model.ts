@@ -84,7 +84,6 @@ export class PerformaticPaginationModel<T extends object> {
 
     const pageLength = skipPlusTake > total ? skipPlusTake - total : take;
 
-
     return new PerformaticPaginationModel(
       PageModel.fromSyncFactory(builderData, data, {
         keys: optional?.keys,
@@ -121,7 +120,14 @@ export class PerformaticPaginationModel<T extends object> {
 
     const skipPlusTake = skipValue + takeValue;
 
-    const pageLength = skipPlusTake > total ? skipPlusTake - total : take;
+    // use pendulum to calculate the page length
+    let pageLength = 0;
+
+    if (skipPlusTake > total) {
+      pageLength = total - skipValue;
+    } else {
+      pageLength = skipPlusTake;
+    }
 
     return new PerformaticPaginationModel(
       await PageModel.fromAsyncFactory(asyncFactory, data, {
@@ -263,6 +269,23 @@ export class PerformaticPaginationModel<T extends object> {
     );
     return new PerformaticPaginationModel(
       mappedData,
+      this.total,
+      this.take,
+      this.skip
+    );
+  }
+
+  filterAsList(callbackfn: (value: T, index: number) => boolean): T[] {
+    return this.page.filterAsList((element, index) =>
+      callbackfn(element, index)
+    );
+  }
+
+  filter(
+    callbackfn: (value: T, index: number) => boolean
+  ): PerformaticPaginationModel<T> {
+    return new PerformaticPaginationModel(
+      this.page.filter((element, index) => callbackfn(element, index)),
       this.total,
       this.take,
       this.skip

@@ -97,6 +97,15 @@ export class PageModel<T extends object> {
     return new MapHelper<T, S>(this).asyncMap(callbackfn);
   }
 
+  filter(criteria: (element: T, index: number) => boolean): PageModel<T> {
+    const filteredData = this.asList.filter(criteria);
+    return PageModel.fromEntriesData(filteredData);
+  }
+
+  filterAsList(criteria: (element: T, index: number) => boolean): T[] {
+    return this.asList.filter(criteria);
+  }
+
   /**
    * Get the page as a list of objects
    *
