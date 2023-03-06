@@ -1,11 +1,11 @@
 import { GetPageParametersHelper, KeysOf, PageModel } from "..";
+import { ListHelper } from "./list-helpers";
 
 export class SyncFactoryPageModelBuilder<S, T extends object> {
   constructor(
     private readonly syncBuilderData: (data: S) => T,
     private readonly data: S[],
     private readonly optional?: {
-      length?: number;
       keys?: KeysOf<T>;
     }
   ) {}
@@ -21,47 +21,44 @@ export class SyncFactoryPageModelBuilder<S, T extends object> {
 
     const getPageParametersFirstHelper = new GetPageParametersHelper<T>(
       firstMappedValue,
-      this.data,
       this.optional
     );
 
-    let {
-      keys,
-      length: trueLength,
-      values,
-    } = getPageParametersFirstHelper.parameters;
+    let { keys, values } = getPageParametersFirstHelper.parameters;
 
     values.push(getPageParametersFirstHelper.getValuesFromItem(keys));
 
-    values.push(
-      ...this.data.map((value, index) => {
-        try {
-          const mappedValue: T = this.syncBuilderData(value);
+    let trueLength = 1;
 
-          const getPageParametersHelper = new GetPageParametersHelper<T>(
-            mappedValue,
-            this.data,
-            this.optional
-          );
+    const response = new ListHelper(this.data).mapAndCount((value, index) => {
+      try {
+        const mappedValue: T = this.syncBuilderData(value);
 
-          return getPageParametersHelper.getValuesFromItem(keys);
-        } catch (error) {
-          console.log(
-            "Error in SyncFactoryPageModelBuilder.\n When index is: ",
-            index,
-            "\n",
-            "-----------------",
-            "value is: ",
-            value,
-            "-----------------",
-            "Error:",
-            error
-          );
+        const getPageParametersHelper = new GetPageParametersHelper<T>(
+          mappedValue,
+          this.optional
+        );
 
-          throw error;
-        }
-      })
-    );
+        return getPageParametersHelper.getValuesFromItem(keys);
+      } catch (error) {
+        console.log(
+          "Error in SyncFactoryPageModelBuilder.\n When index is: ",
+          index,
+          "\n",
+          "-----------------",
+          "value is: ",
+          value,
+          "-----------------",
+          "Error:",
+          error
+        );
+
+        throw error;
+      }
+    });
+
+    values.push(...response.data);
+    trueLength += response.count;
 
     return new PageModel<T>(
       {

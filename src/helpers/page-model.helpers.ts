@@ -144,8 +144,6 @@ export class BuildOneItemPageModelHelper<T extends object, S> {
     return this.getItemPage(item);
   }
 
-  g;
-
   private validateData(): void {
     if (!this.data[0]) {
       throw new Error("The data array is empty");
@@ -157,7 +155,6 @@ export class BuildOneItemPageModelHelper<T extends object, S> {
   private getItemPage(item: T): PageModel<T> {
     const pageParametersHelper = new GetPageParametersHelper<T>(
       item,
-      { length: 1 },
       this.optional
     );
     const { keys, values } = pageParametersHelper.parameters;
@@ -173,19 +170,15 @@ export class BuildOneItemPageModelHelper<T extends object, S> {
 export class GetPageParametersHelper<T extends object> {
   constructor(
     private readonly object: T,
-    private readonly data: { length: number },
     private readonly optional?: { keys?: KeysOf<T>; length?: number }
   ) {}
 
   get parameters(): {
-    length: number;
     values: ValuesType<T>;
     keys: KeysOf<T>;
   } {
-    const length = this.optional?.length ?? this.data.length;
     const values: ValuesType<T> = [];
     return {
-      length,
       values,
       keys: this.keys,
     };

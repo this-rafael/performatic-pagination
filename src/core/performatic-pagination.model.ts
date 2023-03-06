@@ -121,17 +121,9 @@ export class PerformaticPaginationModel<T extends object> {
     const skipPlusTake = skipValue + takeValue;
 
     // use pendulum to calculate the page length
-    let pageLength = 0;
-
-    if (skipPlusTake > total) {
-      pageLength = total - skipValue;
-    } else {
-      pageLength = skipPlusTake;
-    }
 
     return new PerformaticPaginationModel(
       await PageModel.fromAsyncFactory(asyncFactory, data, {
-        length: pageLength,
         keys: optional?.keys,
       }),
       total,

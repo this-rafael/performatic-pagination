@@ -1,4 +1,5 @@
 import { BuildOptionalData, GetPageParametersHelper, PageModel } from "..";
+import { ListHelper } from "./list-helpers";
 
 export class FromEntitiesFactoryPageHelper<T extends object> {
   constructor(
@@ -15,44 +16,41 @@ export class FromEntitiesFactoryPageHelper<T extends object> {
 
     const getPageParametersHelper = new GetPageParametersHelper<T>(
       firstItem,
-      this.data,
       this.optional
     );
 
-    let {
-      keys,
-      length: trueLength,
-      values,
-    } = getPageParametersHelper.parameters;
+    let { keys, values } = getPageParametersHelper.parameters;
 
     values.push(getPageParametersHelper.getValuesFromItem(keys));
 
-    values.push(
-      ...this.data.map((value, index) => {
-        try {
-          const getPageParametersHelper = new GetPageParametersHelper<T>(
-            value,
-            this.data,
-            this.optional
-          );
+    let trueLength = 1;
 
-          return getPageParametersHelper.getValuesFromItem(keys);
-        } catch (error) {
-          console.log(
-            "Error in FromEntitiesFactoryPageHelper.\n When index is: ",
-            index,
-            "\n",
-            "-----------------",
-            "value is: ",
-            value,
-            "-----------------",
-            "Error:",
-            error
-          );
-          throw error;
-        }
-      })
-    );
+    const response = new ListHelper(this.data).mapAndCount((value, index) => {
+      try {
+        const getPageParametersHelper = new GetPageParametersHelper<T>(
+          value,
+          this.optional
+        );
+
+        return getPageParametersHelper.getValuesFromItem(keys);
+      } catch (error) {
+        console.log(
+          "Error in FromEntitiesFactoryPageHelper.\n When index is: ",
+          index,
+          "\n",
+          "-----------------",
+          "value is: ",
+          value,
+          "-----------------",
+          "Error:",
+          error
+        );
+        throw error;
+      }
+    });
+
+    values.push(...response.data);
+    trueLength += response.count;
 
     return new PageModel<T>(
       {

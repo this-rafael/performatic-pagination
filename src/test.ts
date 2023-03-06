@@ -1,5 +1,6 @@
 import { PerformaticPaginationModel } from "./core/performatic-pagination.model";
 import { AsyncFactoryPageModelBuilder } from "./helpers/async-factory-page.model";
+import { ListHelper } from "./helpers/list-helpers";
 
 type A = {
   id: number;
@@ -27,7 +28,7 @@ const map = (a: A): ADerivado => {
 };
 
 const asyncFactory = async (a: A): Promise<ADerivado> => {
-  await delay(1000);
+  await delay(100);
   return map(a);
 };
 
@@ -53,15 +54,23 @@ const main = async () => {
   const take = 13;
   const skip = 12;
 
-  const pp = await PerformaticPaginationModel.fromAsyncFactory({
-    data,
-    asyncFactory,
-    total,
-    skip,
-    take,
-  });
+  // const pp = await PerformaticPaginationModel.fromAsyncFactory({
+  //   data,
+  //   asyncFactory,
+  //   total,
+  //   skip,
+  //   take,
+  // });
 
-  console.log(pp.asList);
+  // console.log(pp.asList);
+
+  const list2 = await new ListHelper(data).mapAndCountAsync(asyncFactory);
+
+  console.log(list2);
+
+  const list = await new ListHelper(data).mapAndCount((e) => e);
+
+  console.log(list);
 };
 
 main();

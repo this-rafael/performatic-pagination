@@ -174,6 +174,8 @@ export interface PerformanticPaginationModelFromEntriesBuilder<
   optional?: {
     keys?: KeysOf<T>;
   };
+
+  length?: number;
 }
 
 export interface PerformaticPaginationFromDataBuilder<T extends object> {

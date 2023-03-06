@@ -1,11 +1,11 @@
 import { GetPageParametersHelper, KeysOf, PageModel } from "..";
+import { ListHelper } from "./list-helpers";
 
 export class AsyncFactoryPageModelBuilder<S, T extends object> {
   constructor(
     private readonly asyncBuilderData: (data: S) => Promise<T>,
     private readonly data: S[],
     private readonly optional?: {
-      length?: number;
       keys?: KeysOf<T>;
     }
   ) {}
@@ -21,48 +21,48 @@ export class AsyncFactoryPageModelBuilder<S, T extends object> {
 
     const getPageParametersFirstHelper = new GetPageParametersHelper<T>(
       firstMappedValue,
-      this.data,
       this.optional
     );
 
-    let {
-      keys,
-      length: trueLength,
-      values,
-    } = getPageParametersFirstHelper.parameters;
+    let { keys, values } = getPageParametersFirstHelper.parameters;
+
+    let trueLength = 0;
 
     values.push(getPageParametersFirstHelper.getValuesFromItem(keys));
 
-    values.push(
-      ...(await Promise.all(
-        this.data.map(async (value, index) => {
-          try {
-            const mappedValue: T = await this.asyncBuilderData(value);
+    trueLength += 1;
 
-            const getPageParametersHelper = new GetPageParametersHelper<T>(
-              mappedValue,
-              this.data,
-              this.optional
-            );
+    const response = await new ListHelper(this.data).mapAndCountAsync(
+      async (value, index) => {
+        try {
+          const mappedValue: T = await this.asyncBuilderData(value);
 
-            return getPageParametersHelper.getValuesFromItem(keys);
-          } catch (error) {
-            console.log(
-              "Error in AsyncFactoryPageModelBuilder.\n When index is: ",
-              index,
-              "\n",
-              "-----------------",
-              "value is: ",
-              value,
-              "-----------------",
-              "Error:",
-              error
-            );
-            throw error;
-          }
-        })
-      ))
+          const getPageParametersHelper = new GetPageParametersHelper<T>(
+            mappedValue,
+            this.data,
+            this.optional
+          );
+
+          return getPageParametersHelper.getValuesFromItem(keys);
+        } catch (error) {
+          console.log(
+            "Error in AsyncFactoryPageModelBuilder.\n When index is: ",
+            index,
+            "\n",
+            "-----------------",
+            "value is: ",
+            value,
+            "-----------------",
+            "Error:",
+            error
+          );
+          throw error;
+        }
+      }
     );
+
+    values.push(...response.data);
+    trueLength += response.count;
 
     return new PageModel<T>(
       {
