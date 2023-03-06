@@ -19,7 +19,7 @@ export class SyncFactoryPageModelBuilder<S, T extends object> {
 
     const firstMappedValue: T = this.syncBuilderData(firstItem);
 
-    const getPageParametersHelper = new GetPageParametersHelper<T>(
+    const getPageParametersFirstHelper = new GetPageParametersHelper<T>(
       firstMappedValue,
       this.data,
       this.optional
@@ -29,20 +29,39 @@ export class SyncFactoryPageModelBuilder<S, T extends object> {
       keys,
       length: trueLength,
       values,
-    } = getPageParametersHelper.parameters;
+    } = getPageParametersFirstHelper.parameters;
 
-    values = this.data.map((value, index) => {
-      console.log(value, index);
-      const mappedValue: T = this.syncBuilderData(value);
+    values.push(getPageParametersFirstHelper.getValuesFromItem(keys));
 
-      const getPageParametersHelper = new GetPageParametersHelper<T>(
-        mappedValue,
-        this.data,
-        this.optional
-      );
+    values.push(
+      ...this.data.map((value, index) => {
+        try {
+          const mappedValue: T = this.syncBuilderData(value);
 
-      return getPageParametersHelper.getValuesFromItem(keys);
-    });
+          const getPageParametersHelper = new GetPageParametersHelper<T>(
+            mappedValue,
+            this.data,
+            this.optional
+          );
+
+          return getPageParametersHelper.getValuesFromItem(keys);
+        } catch (error) {
+          console.log(
+            "Error in SyncFactoryPageModelBuilder.\n When index is: ",
+            index,
+            "\n",
+            "-----------------",
+            "value is: ",
+            value,
+            "-----------------",
+            "Error:",
+            error
+          );
+
+          throw error;
+        }
+      })
+    );
 
     return new PageModel<T>(
       {

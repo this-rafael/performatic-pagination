@@ -25,15 +25,34 @@ export class FromEntitiesFactoryPageHelper<T extends object> {
       values,
     } = getPageParametersHelper.parameters;
 
-    values = this.data.map((value, index) => {
-      const getPageParametersHelper = new GetPageParametersHelper<T>(
-        value,
-        this.data,
-        this.optional
-      );
+    values.push(getPageParametersHelper.getValuesFromItem(keys));
 
-      return getPageParametersHelper.getValuesFromItem(keys);
-    });
+    values.push(
+      ...this.data.map((value, index) => {
+        try {
+          const getPageParametersHelper = new GetPageParametersHelper<T>(
+            value,
+            this.data,
+            this.optional
+          );
+
+          return getPageParametersHelper.getValuesFromItem(keys);
+        } catch (error) {
+          console.log(
+            "Error in FromEntitiesFactoryPageHelper.\n When index is: ",
+            index,
+            "\n",
+            "-----------------",
+            "value is: ",
+            value,
+            "-----------------",
+            "Error:",
+            error
+          );
+          throw error;
+        }
+      })
+    );
 
     return new PageModel<T>(
       {

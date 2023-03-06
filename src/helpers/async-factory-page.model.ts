@@ -19,7 +19,7 @@ export class AsyncFactoryPageModelBuilder<S, T extends object> {
 
     const firstMappedValue: T = await this.asyncBuilderData(firstItem);
 
-    const getPageParametersHelper = new GetPageParametersHelper<T>(
+    const getPageParametersFirstHelper = new GetPageParametersHelper<T>(
       firstMappedValue,
       this.data,
       this.optional
@@ -29,21 +29,39 @@ export class AsyncFactoryPageModelBuilder<S, T extends object> {
       keys,
       length: trueLength,
       values,
-    } = getPageParametersHelper.parameters;
+    } = getPageParametersFirstHelper.parameters;
 
-    values = await Promise.all(
-      this.data.map(async (value, index) => {
-        console.log(value, index);
-        const mappedValue: T = await this.asyncBuilderData(value);
+    values.push(getPageParametersFirstHelper.getValuesFromItem(keys));
 
-        const getPageParametersHelper = new GetPageParametersHelper<T>(
-          mappedValue,
-          this.data,
-          this.optional
-        );
+    values.push(
+      ...(await Promise.all(
+        this.data.map(async (value, index) => {
+          try {
+            const mappedValue: T = await this.asyncBuilderData(value);
 
-        return getPageParametersHelper.getValuesFromItem(keys);
-      })
+            const getPageParametersHelper = new GetPageParametersHelper<T>(
+              mappedValue,
+              this.data,
+              this.optional
+            );
+
+            return getPageParametersHelper.getValuesFromItem(keys);
+          } catch (error) {
+            console.log(
+              "Error in AsyncFactoryPageModelBuilder.\n When index is: ",
+              index,
+              "\n",
+              "-----------------",
+              "value is: ",
+              value,
+              "-----------------",
+              "Error:",
+              error
+            );
+            throw error;
+          }
+        })
+      ))
     );
 
     return new PageModel<T>(
