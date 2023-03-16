@@ -39,7 +39,6 @@ export class AsyncFactoryPageModelBuilder<S, T extends object> {
 
           const getPageParametersHelper = new GetPageParametersHelper<T>(
             mappedValue,
-            this.data,
             this.optional
           );
 
