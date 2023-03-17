@@ -99,7 +99,7 @@ export class PageModel<T extends object> {
 
   filter(criteria: (element: T, index: number) => boolean): PageModel<T> {
     const filteredData = this.asList.filter(criteria);
-    return PageModel.fromEntriesData(filteredData);
+    return PageModel.fromEntites(filteredData);
   }
 
   filterAsList(criteria: (element: T, index: number) => boolean): T[] {
@@ -131,7 +131,7 @@ export class PageModel<T extends object> {
    * @return {*}  {PageModel<T>}
    * @memberof PageModel
    */
-  public static fromEntriesData<T extends object>(
+  public static fromEntites<T extends object>(
     data: T[],
     optional?: BuildOptionalData<T>
   ): PageModel<T> {

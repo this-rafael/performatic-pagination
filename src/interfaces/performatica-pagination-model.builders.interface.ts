@@ -29,7 +29,7 @@ export interface PerformaticPaginationModelFromSyncFactoryBuilder<
   data: S[];
 
   /**
-   * Its an function that will be used to map the {@link data} to the {@link T} where T is the type of the page
+   * Its an function that will be used to map the {@link S} to the {@link T} where T is the type of the page
    *
    * @memberof PerformaticPaginationModelFromSyncFactoryBuilder
    */

@@ -146,7 +146,7 @@ export class PerformaticPaginationModel<T extends object> {
    * @return {*}  {PerformaticPaginationModel<T>}
    * @memberof PerformaticPaginationModel
    */
-  static fromEntriesData<T extends object>(
+  static fromEntites<T extends object>(
     builder: PerformanticPaginationModelFromEntriesBuilder<T>
   ): PerformaticPaginationModel<T> {
     const { total, entries, take, skip, optional } = builder;
@@ -159,7 +159,7 @@ export class PerformaticPaginationModel<T extends object> {
     const pageLength = skipPlusTake > total ? skipPlusTake - total : take;
 
     return new PerformaticPaginationModel(
-      PageModel.fromEntriesData<T>(entries, {
+      PageModel.fromEntites<T>(entries, {
         keys: optional?.keys,
         length: pageLength,
       }),

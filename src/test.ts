@@ -33,18 +33,32 @@ const asyncFactory = async (a: A): Promise<ADerivado> => {
 };
 
 const main = async () => {
-  const total = 14;
-  const data = [{ id: 0, name: "name 0" }];
+  const user = {
+    ids: {
+      internalId: 1,
+      externalId: "4a3be3c8-4114-4cbc-8da7-5b5f1c8792ae",
+    },
+    names: {
+      firstName: "John",
+      surname: "Doe",
+    },
+    contact: {
+      email: "any@email.com",
+      phone: "123456789",
+    },
+  };
 
-  const take = 13;
-  const skip = 12;
+  const users = [user];
 
-  const pp = await PerformaticPaginationModel.fromAsyncFactory({
-    data,
-    asyncFactory,
+  const total = 1;
+  const take = 1;
+  const skip = 0;
+
+  const pp = PerformaticPaginationModel.fromEntites({
     total,
-    skip,
+    entries: users,
     take,
+    skip,
   });
 
   console.log(JSON.stringify(pp));
