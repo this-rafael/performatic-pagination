@@ -1,68 +1,26 @@
-import { PerformaticPaginationModel } from "./core/performatic-pagination.model";
-import { AsyncFactoryPageModelBuilder } from "./helpers/async-factory-page.model";
-import { ListHelper } from "./helpers/list-helpers";
-
-type A = {
-  id: number;
-  name: string;
-};
-
-type ADerivado = {
-  id: number;
-  name: string;
-  createdAt: Date;
-};
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const generateAData = (count: number) => {
-  const data: A[] = [];
-  for (let i = 0; i < count; i++) {
-    data.push({ id: i, name: `name ${i}` });
+const range = (start: number, end: number, step: number) => {
+  const result = [];
+  for (let i = start; i < end; i += step) {
+    result.push(i);
   }
-  return data;
+
+  return result;
 };
 
-const map = (a: A): ADerivado => {
-  return { ...a, createdAt: new Date() };
-};
+const numberfrom0to1000 = range(0, 1000, 1);
 
-const asyncFactory = async (a: A): Promise<ADerivado> => {
-  await delay(100);
-  return map(a);
-};
+console.time("normal");
+for (const n of numberfrom0to1000) {
+  console.log(numberfrom0to1000.length);
+}
 
-const main = async () => {
-  const user = {
-    ids: {
-      internalId: 1,
-      externalId: "4a3be3c8-4114-4cbc-8da7-5b5f1c8792ae",
-    },
-    names: {
-      firstName: "John",
-      surname: "Doe",
-    },
-    contact: {
-      email: "any@email.com",
-      phone: "123456789",
-    },
-  };
+console.timeEnd("normal");
 
-  const users = [user];
-
-  const total = 1;
-  const take = 1;
-  const skip = 0;
-
-  const pp = PerformaticPaginationModel.fromEntites({
-    total,
-    entries: users,
-    take,
-    skip,
-  });
-
-  console.log(JSON.stringify(pp));
-  console.log(pp.asList);
-};
-
-main();
+console.time("pre calculate");
+const length = numberfrom0to1000.length;
+for (const n of numberfrom0to1000) {
+  console.log(length);
+}
+console.timeEnd("pre calculate");
+// normal: 13.655ms
+// pre calculate: 13.789ms
