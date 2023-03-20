@@ -52,6 +52,7 @@ export class FromEntitiesFactoryPageHelper<T extends object> {
     values.push(...response.data);
     trueLength += response.count;
 
+    this.data.unshift(firstItem);
     return new PageModel<T>(
       {
         keys,
